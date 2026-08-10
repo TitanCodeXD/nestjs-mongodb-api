@@ -10,6 +10,7 @@ import { User } from './schemas/user.schema';
 
 //DTO
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -59,6 +60,21 @@ export class UsersService {
 
     return {
       message: 'User deleted successfully!',
+    };
+  }
+
+  //UPDATE USER FUNCTION
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
+      new: true,
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      message: 'User updated successfully!',
     };
   }
 }
