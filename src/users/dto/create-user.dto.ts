@@ -6,6 +6,7 @@ import {
   Min,
   Max,
   IsString,
+  IsInt,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -25,6 +26,7 @@ export class CreateUserDto {
   password!: string;
 
   @IsNotEmpty()
+  @IsInt()
   @Min(13)
   @Max(120)
   age!: number;
