@@ -11,8 +11,7 @@ export class UsersService {
     private readonly userModel: Model<User>,
   ) {}
 
-  //Função teste no /users retonrnando o nome do modelo User
-  getModelName() {
-    return this.userModel.modelName;
+  async findAllUsers() {
+    return this.userModel.find();
   }
 }

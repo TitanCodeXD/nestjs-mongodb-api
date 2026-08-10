@@ -6,7 +6,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  getModelName() {
-    return this.usersService.getModelName();
+  async findAllUsers() {
+    return this.usersService.findAllUsers();
   }
 }
