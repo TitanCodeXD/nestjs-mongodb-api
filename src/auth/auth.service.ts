@@ -6,11 +6,15 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../users/schemas/user.schema';
 import { LoginDto } from './dto/login.dto';
 
+import { JwtService } from '@nestjs/jwt';
+
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
+
+    private readonly jwtService: JwtService,
   ) {}
 
   //Lógica do Login
@@ -32,8 +36,17 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    const payload = {
+      sub: user._id,
+      email: user.email,
+    };
+
+    const accessToken = this.jwtService.sign(payload);
+
     return {
       message: 'Login successful',
+      access_token: accessToken,
+      id: user._id,
     };
   }
 }
