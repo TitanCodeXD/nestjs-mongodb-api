@@ -12,6 +12,9 @@ import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+//Bcrypt
+import * as bcrypt from 'bcrypt';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -38,8 +41,11 @@ export class UsersService {
   // CREATE USER FUNCTION
   async create(createUserDto: CreateUserDto) {
     try {
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
       return await this.userModel.create({
         ...createUserDto,
+        password: hashedPassword,
       });
     } catch (error: any) {
       if (error?.code === 11000 && error?.keyPattern?.email) {
@@ -66,7 +72,7 @@ export class UsersService {
   //UPDATE USER FUNCTION
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
-      new: true,
+      returnDocument: 'before',
     });
 
     if (!user) {
