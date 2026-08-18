@@ -19,9 +19,11 @@ export class AuthService {
 
   //Lógica do Login
   async login(loginDto: LoginDto) {
-    const user = await this.userModel.findOne({
-      email: loginDto.email,
-    });
+    const user = await this.userModel
+      .findOne({
+        email: loginDto.email,
+      })
+      .select('+password'); //select password, porque por padrao definimos para o password nao vir com consultas, mas nesse caso para login é necessario, precisamos comparar a senha do login com a senha do banco de dados.
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');

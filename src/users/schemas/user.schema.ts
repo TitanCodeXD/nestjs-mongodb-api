@@ -15,7 +15,7 @@ export class User {
   @Prop({ required: true, unique: true })
   email!: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, select: false }) //select false torna com que o mongo nao retorne essa prop por padrao nas consultas, no caso da senha, da mais segurança ainda
   password!: string;
 
   @Prop()
