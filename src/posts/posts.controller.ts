@@ -1,5 +1,6 @@
 import {
   Get,
+  Param,
   Body,
   Controller,
   Post as HttpPost,
@@ -17,6 +18,11 @@ export class PostsController {
   @Get()
   findAllPosts() {
     return this.postsService.findAllPosts();
+  }
+
+  //GetPostById
+  @Get(':id') findPostById(@Param('id') id: string) {
+    return this.postsService.findPostById(id);
   }
 
   //CreatePost
