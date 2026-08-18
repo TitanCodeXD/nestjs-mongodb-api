@@ -3,7 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 //Errors
-import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
+
+import { Types } from 'mongoose';
 
 //Schema
 import { Post } from './schemas/post.schema';
@@ -36,6 +38,9 @@ export class PostsService {
 
   //Get post by Id Functiob
   async findPostById(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid post ID');
+    }
     const post = await this.postModel.findById(id).populate('author', 'name');
 
     if (!post) {
