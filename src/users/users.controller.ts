@@ -14,14 +14,16 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-//JWT
+//JWT Guard
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+//Decorator de rotas Publicas
+import { Public } from '../auth/decorators/public.decorator';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   //ALL USERS
-  @UseGuards(JwtAuthGuard)
   @Get()
   async findAllUsers() {
     return this.usersService.findAllUsers();
@@ -34,6 +36,7 @@ export class UsersController {
   }
 
   //CREATE USER
+  @Public()
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
