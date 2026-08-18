@@ -59,6 +59,7 @@ export class UsersService {
 
   //DELETE USER FUNCTION
   async deleteUser(id: string, user: any) {
+    //Verificação inicial se o que voce quer deletar te pertence ou não
     const isOwner = user._id.toString() === id;
     const isAdmin = user.role === 'admin';
 
@@ -80,12 +81,23 @@ export class UsersService {
   }
 
   //UPDATE USER FUNCTION
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
-      returnDocument: 'before',
-    });
+  async updateUser(id: string, updateUserDto: UpdateUserDto, user: User) {
+    //Verificação inicial se o que voce quer dar update te pertence ou não
+    const isOwner = user._id.toString() === id;
+    const isAdmin = user.role === 'admin';
 
-    if (!user) {
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('You can only update your own account');
+    }
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      id,
+      updateUserDto,
+      {
+        returnDocument: 'before',
+      },
+    );
+
+    if (!updatedUser) {
       throw new NotFoundException('User not found');
     }
 

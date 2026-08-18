@@ -30,6 +30,12 @@ export class UsersController {
     return this.usersService.findAllUsers();
   }
 
+  //Retornar o usuario que esta logado
+  @Get('me')
+  async getMe(@Request() req: any) {
+    return req.user;
+  }
+
   //Find user by ID
   @Get(':id')
   findUserById(@Param('id') id: string) {
@@ -46,12 +52,16 @@ export class UsersController {
   //DELETE USER
   @Delete(':id')
   async remove(@Param('id') id: string, @Request() req: any) {
-    return this.usersService.deleteUser(id, req.user);
+    return this.usersService.deleteUser(id, req.user); //req.user é do validate do passport, passport é justamente para autenticação, então ele cria um req.user intenro para uso, é uma convenção do passport
   }
 
   //UPDATE USER
   @Patch(':id')
-  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.updateUser(id, updateUserDto);
+  updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Request() req: any,
+  ) {
+    return this.usersService.updateUser(id, updateUserDto, req.user);
   }
 }
