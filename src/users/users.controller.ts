@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 
@@ -44,8 +45,8 @@ export class UsersController {
 
   //DELETE USER
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
-    return this.usersService.deleteUser(id);
+  async remove(@Param('id') id: string, @Request() req: any) {
+    return this.usersService.deleteUser(id, req.user);
   }
 
   //UPDATE USER

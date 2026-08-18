@@ -23,6 +23,9 @@ export class User {
 
   @Prop()
   age!: number;
+
+  @Prop({ default: 'user' })
+  role!: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

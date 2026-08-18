@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
@@ -57,15 +58,24 @@ export class UsersService {
   }
 
   //DELETE USER FUNCTION
-  async deleteUser(id: string) {
-    const user = await this.userModel.findByIdAndDelete(id);
+  async deleteUser(id: string, user: any) {
+    const isOwner = user._id.toString() === id;
+    const isAdmin = user.role === 'admin';
 
-    if (!user) {
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('You can only delete your own account');
+    }
+
+    const deletedUser = await this.userModel.findOneAndDelete({
+      _id: id,
+    });
+
+    if (!deletedUser) {
       throw new NotFoundException('User not found');
     }
 
     return {
-      message: 'User deleted successfully!',
+      message: 'User deleted successfully',
     };
   }
 
