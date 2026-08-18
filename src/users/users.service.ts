@@ -93,7 +93,7 @@ export class UsersService {
       id,
       updateUserDto,
       {
-        returnDocument: 'before',
+        returnDocument: 'after',
       },
     );
 
