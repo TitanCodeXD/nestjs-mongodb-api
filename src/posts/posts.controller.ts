@@ -2,6 +2,7 @@ import {
   Get,
   Param,
   Patch,
+  Delete,
   Body,
   Controller,
   Post as HttpPost,
@@ -43,5 +44,11 @@ export class PostsController {
     @Request() req: any,
   ) {
     return this.postsService.updatePost(id, updatePostDto, req.user);
+  }
+
+  //DELETE Post
+  @Delete(':id')
+  async remove(@Param('id') id: string, @Request() req: any) {
+    return this.postsService.deletePost(id, req.user); //req.user é do validate do passport, passport é justamente para autenticação, então ele cria um req.user intenro para uso, é uma convenção do passport
   }
 }

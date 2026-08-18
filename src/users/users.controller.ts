@@ -58,12 +58,6 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  //DELETE USER
-  @Delete(':id')
-  async remove(@Param('id') id: string, @Request() req: any) {
-    return this.usersService.deleteUser(id, req.user); //req.user é do validate do passport, passport é justamente para autenticação, então ele cria um req.user intenro para uso, é uma convenção do passport
-  }
-
   //UPDATE USER
   @Patch(':id')
   updateUser(
@@ -72,5 +66,11 @@ export class UsersController {
     @Request() req: any,
   ) {
     return this.usersService.updateUser(id, updateUserDto, req.user);
+  }
+
+  //DELETE USER
+  @Delete(':id')
+  async remove(@Param('id') id: string, @Request() req: any) {
+    return this.usersService.deleteUser(id, req.user); //req.user é do validate do passport, passport é justamente para autenticação, então ele cria um req.user intenro para uso, é uma convenção do passport
   }
 }

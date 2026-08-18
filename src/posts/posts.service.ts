@@ -76,16 +76,40 @@ export class PostsService {
     if (!isOwner && !isAdmin) {
       throw new ForbiddenException('You can only update your own post');
     }
-    const updatedPost = await this.postModel.findByIdAndUpdate(
-      id,
-      updatePostDto,
-      {
-        returnDocument: 'after',
-      },
-    );
+
+    await this.postModel.findByIdAndUpdate(id, updatePostDto, {
+      returnDocument: 'after',
+    });
 
     return {
       message: 'Post updated successfully!',
+    };
+  }
+
+  //Delete Postr Function
+  async deletePost(id: string, user: User) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid post ID');
+    }
+
+    const post = await this.postModel.findById(id);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    //Verificação se o que voce quer dar update te pertence ou não
+    const isOwner = user._id.toString() === post.author.toString();
+    const isAdmin = user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('You can only delete your own post');
+    }
+
+    await this.postModel.findByIdAndDelete(id);
+
+    return {
+      message: 'Post deleted successfully!',
     };
   }
 }

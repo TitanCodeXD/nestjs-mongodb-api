@@ -57,29 +57,6 @@ export class UsersService {
     }
   }
 
-  //DELETE USER FUNCTION
-  async deleteUser(id: string, user: any) {
-    //Verificação inicial se o que voce quer deletar te pertence ou não
-    const isOwner = user._id.toString() === id;
-    const isAdmin = user.role === 'admin';
-
-    if (!isOwner && !isAdmin) {
-      throw new ForbiddenException('You can only delete your own account');
-    }
-
-    const deletedUser = await this.userModel.findOneAndDelete({
-      _id: id,
-    });
-
-    if (!deletedUser) {
-      throw new NotFoundException('User not found');
-    }
-
-    return {
-      message: 'User deleted successfully',
-    };
-  }
-
   //UPDATE USER FUNCTION
   async updateUser(id: string, updateUserDto: UpdateUserDto, user: User) {
     //Verificação inicial se o que voce quer dar update te pertence ou não
@@ -103,6 +80,29 @@ export class UsersService {
 
     return {
       message: 'User updated successfully!',
+    };
+  }
+
+  //DELETE USER FUNCTION
+  async deleteUser(id: string, user: any) {
+    //Verificação inicial se o que voce quer deletar te pertence ou não
+    const isOwner = user._id.toString() === id;
+    const isAdmin = user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('You can only delete your own account');
+    }
+
+    const deletedUser = await this.userModel.findOneAndDelete({
+      _id: id,
+    });
+
+    if (!deletedUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      message: 'User deleted successfully',
     };
   }
 }
