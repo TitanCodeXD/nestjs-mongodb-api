@@ -18,6 +18,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 //JWT Guard
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+//Swagger
+import { ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+
 //Decorator de rotas Publicas
 import { Public } from '../auth/decorators/public.decorator';
 @Controller('users')
@@ -31,6 +34,12 @@ export class UsersController {
   }
 
   //Retornar o usuario que esta logado
+  @ApiOperation({ summary: 'Get authenticated user' })
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the authenticated user',
+  })
   @Get('me')
   async getMe(@Request() req: any) {
     return req.user;
