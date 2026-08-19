@@ -6,8 +6,4 @@ export class CreateCommentDto {
   @MinLength(1)
   @MaxLength(5000)
   content!: string;
-
-  @IsNotEmpty()
-  @IsString()
-  post!: string;
 }
