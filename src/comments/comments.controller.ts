@@ -1,7 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { CommentsService } from './comments.service';
-import { Get, Post, Body, Param, Request } from '@nestjs/common';
-import { CreateCommentDto } from './dto/create-comment.dto';
+import { Get, Post, Patch, Body, Param, Request } from '@nestjs/common';
+
+//Dto
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Controller('comments')
 export class CommentsController {
@@ -10,5 +12,14 @@ export class CommentsController {
   @Get(':id')
   async findCommentById(@Param('id') id: string) {
     return this.commentsService.findCommentById(id);
+  }
+
+  @Patch(':id')
+  async updateComment(
+    @Param('id') id: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+    @Request() req: any,
+  ) {
+    return this.commentsService.updateComment(id, updateCommentDto, req.user);
   }
 }

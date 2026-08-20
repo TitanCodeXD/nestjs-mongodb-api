@@ -14,6 +14,7 @@ import { Comment } from './schemas/comment.schema';
 
 //Dto
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Post } from '../posts/schemas/post.schema';
 import { User } from '../users/schemas/user.schema';
 
@@ -78,6 +79,7 @@ export class CommentsService {
     return comment;
   }
 
+  //Find all comments of a post
   async findPostComments(postId: string) {
     // Verifica se o ID possui formato válido de ObjectId
     if (!Types.ObjectId.isValid(postId)) {
@@ -100,5 +102,39 @@ export class CommentsService {
       .populate('post', 'title');
 
     return comments;
+  }
+
+  //Update comment
+  async updateComment(
+    id: string,
+    updateCommentDto: UpdateCommentDto,
+    user: User,
+  ) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid post ID');
+    }
+
+    //Achar o comment
+    const comment = await this.commentModel.findById(id);
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    //Verificação se o que voce quer dar update te pertence ou não - OU É ADMIN SUPREMO (apenas para fins de testes, facilita)
+    const isOwner = user._id.toString() === comment.author.toString();
+    const isAdmin = user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('You can only update your own comment');
+    }
+
+    await this.commentModel.findByIdAndUpdate(id, updateCommentDto, {
+      returnDocument: 'after',
+    });
+
+    return {
+      message: 'Comment updated successfully!',
+    };
   }
 }
