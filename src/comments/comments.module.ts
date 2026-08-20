@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
+
+//Controllers e Services
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.service';
+import { PostCommentsController } from './post.comments.controller';
 
 //Import do schema do comment e do post
 import { Model } from 'mongoose';
@@ -23,7 +26,7 @@ import { PostSchema } from '../posts/schemas/post.schema';
       },
     ]),
   ],
-  controllers: [CommentsController],
+  controllers: [CommentsController, PostCommentsController],
   providers: [CommentsService],
 })
 export class CommentsModule {}

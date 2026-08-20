@@ -57,4 +57,28 @@ export class CommentsService {
     //Comentario criado, agora precisamos popular o post com esse comentario
     return comment;
   }
+
+  async findPostComments(postId: string) {
+    // Verifica se o ID possui formato válido de ObjectId
+    if (!Types.ObjectId.isValid(postId)) {
+      throw new BadRequestException('Invalid post ID');
+    }
+
+    // Verifica se o Post realmente existe
+    const post = await this.postModel.findById(postId);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    // Busca todos os comentários desse Post
+    const comments = await this.commentModel
+      .find({
+        post: new Types.ObjectId(postId), //Por algum motivo o casting automatico do schema nao foi, entao tive que deixar explicito que é esperado um objectId, foram uns bons minutos para debuggar isso
+      })
+      .populate('author', 'name')
+      .populate('post', 'title');
+
+    return comments;
+  }
 }
