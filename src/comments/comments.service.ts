@@ -28,6 +28,16 @@ export class CommentsService {
     private readonly postModel: Model<Post>,
   ) {}
 
+  //findAllComments
+  async findAllComments() {
+    const coments = await this.commentModel.find();
+    //Optei por deixar opcional o populate nesse caso, é mais para facilitar na construção da api
+    /*.populate('post', 'title')
+      .populate('author', 'name');*/
+
+    return coments;
+  }
+
   //findCommentById
   async findCommentById(id: string) {
     //id válido?
@@ -98,6 +108,7 @@ export class CommentsService {
       .find({
         post: new Types.ObjectId(postId), //Por algum motivo o casting automatico do schema nao foi, entao tive que deixar explicito que é esperado um objectId, foram uns bons minutos para debuggar isso
       })
+      .sort({ createdAt: -1 })
       .populate('author', 'name')
       .populate('post', 'title');
 
@@ -111,7 +122,7 @@ export class CommentsService {
     user: User,
   ) {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid post ID');
+      throw new BadRequestException('Invalid comment ID');
     }
 
     //Achar o comment
@@ -135,6 +146,33 @@ export class CommentsService {
 
     return {
       message: 'Comment updated successfully!',
+    };
+  }
+
+  //Delete Comment
+  async deleteComment(id: string, user: User) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid comment ID');
+    }
+
+    //Achar o comment
+    const comment = await this.commentModel.findById(id);
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    const isOwner = user._id.toString() === comment.author.toString();
+    const isAdmin = user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('You can only delete your own comment');
+    }
+
+    await this.commentModel.findByIdAndDelete(id);
+
+    return {
+      message: 'Comment deleted successfully!',
     };
   }
 }
