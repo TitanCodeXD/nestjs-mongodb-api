@@ -27,6 +27,26 @@ export class CommentsService {
     private readonly postModel: Model<Post>,
   ) {}
 
+  //findCommentById
+  async findCommentById(id: string) {
+    //id válido?
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid post ID');
+    }
+
+    const comment = await this.commentModel
+      .findById(id)
+      .populate('post', 'title')
+      .populate('author', 'name');
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    return comment;
+  }
+
+  //Create Comment
   async createComment(
     postId: string,
     createDocumentDtto: CreateCommentDto,
