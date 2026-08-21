@@ -14,6 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 //bcrypt mock
 import * as bcrypt from 'bcrypt';
+import { UserInfo } from 'os';
 
 jest.mock('bcrypt', () => ({
   hash: jest.fn(),
@@ -31,6 +32,7 @@ describe('UsersService', () => {
     find: jest.fn(), //Função find 'falsa'
     findById: jest.fn(), //Função find by id 'falsa'
     create: jest.fn(), //Função create 'falsa'
+    findByIdAndUpdate: jest.fn(), //Função de update 'falsa'
   };
 
   beforeEach(async () => {
@@ -232,7 +234,41 @@ describe('UsersService', () => {
     const updateUserDto: UpdateUserDto = {
       name: 'Wesley',
       email: 'wesley@email.com',
+      bio: 'minha primeira bio!',
       age: 25,
     };
+
+    const userId = '1';
+
+    const user = {
+      _id: userId,
+      role: 'user',
+    };
+
+    mockUserModel.findByIdAndUpdate.mockResolvedValue({
+      ...updateUserDto,
+      _id: userId,
+    });
+
+    const result = await service.updateUser(
+      userId,
+      updateUserDto,
+      user as User,
+    );
+
+    //Foi chamado para atualizar?
+    expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      userId,
+      updateUserDto,
+      {
+        returnDocument: 'after',
+      },
+    );
+
+    expect(result).toEqual({
+      message: 'User updated successfully!',
+    });
+
+    expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
   });
 });
