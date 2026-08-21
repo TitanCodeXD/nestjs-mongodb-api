@@ -10,6 +10,7 @@ import { User } from './schemas/user.schema';
 
 //Dto
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 //bcrypt mock
 import * as bcrypt from 'bcrypt';
@@ -223,5 +224,15 @@ describe('UsersService', () => {
 
     //é esperado que seja chamado so uma vez a função create
     expect(mockUserModel.create).toHaveBeenCalledTimes(1);
+  });
+
+  //UpdateUser
+  it('should update succesfully if you are trying update your own user', async () => {
+    //fornecer todo o contexto apra o ocorrer tal erro
+    const updateUserDto: UpdateUserDto = {
+      name: 'Wesley',
+      email: 'wesley@email.com',
+      age: 25,
+    };
   });
 });
