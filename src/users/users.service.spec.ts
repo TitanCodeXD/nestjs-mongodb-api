@@ -157,7 +157,7 @@ describe('UsersService', () => {
     });
   });
 
-  //Create an User - emal already exists
+  //Create an User - email already exists
   it('should throw ConflictException if email already exists', async () => {
     const createUserDto: CreateUserDto = {
       name: 'Wesley',
@@ -181,6 +181,38 @@ describe('UsersService', () => {
     //A função real deve retornar erro se tentar passar ese createUserDto
     await expect(service.create(createUserDto)).rejects.toThrow(
       ConflictException,
+    );
+
+    //é esperado que o mock- mongodb falso chame o create falso passando como argumento o createUserDto
+    expect(mockUserModel.create).toHaveBeenCalledWith({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
+    //é esperado que seja chamado so uma vez a função create
+    expect(mockUserModel.create).toHaveBeenCalledTimes(1);
+  });
+
+  //Create an User - Generical Error
+  it('should throw error if generic error', async () => {
+    //fornecer todo o contexto apra o ocorrer tal erro
+    const createUserDto: CreateUserDto = {
+      name: 'Wesley',
+      email: 'wesley@email.com',
+      password: '123456',
+      age: 25,
+    };
+
+    const hashedPassword = 'hashed-password';
+
+    mockBcryptHash.mockResolvedValue(hashedPassword);
+
+    const unexpectedError = new Error('Database connection failed'); //criando um suposto erro inesperado
+
+    mockUserModel.create.mockRejectedValue(unexpectedError);
+
+    await expect(service.create(createUserDto)).rejects.toThrow(
+      unexpectedError,
     );
 
     //é esperado que o mock- mongodb falso chame o create falso passando como argumento o createUserDto
