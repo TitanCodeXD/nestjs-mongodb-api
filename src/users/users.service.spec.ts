@@ -228,7 +228,7 @@ describe('UsersService', () => {
     expect(mockUserModel.create).toHaveBeenCalledTimes(1);
   });
 
-  //UpdateUser
+  //UpdateUser - Owner
   it('should update succesfully if you are trying update your own user', async () => {
     //fornecer todo o contexto apra o ocorrer tal erro
     const updateUserDto: UpdateUserDto = {
@@ -238,8 +238,10 @@ describe('UsersService', () => {
       age: 25,
     };
 
+    //Usuario
     const userId = '1';
 
+    //Usuario logado
     const user = {
       _id: userId,
       role: 'user',
@@ -257,6 +259,50 @@ describe('UsersService', () => {
     );
 
     //Foi chamado para atualizar?
+    expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      userId,
+      updateUserDto,
+      {
+        returnDocument: 'after',
+      },
+    );
+
+    expect(result).toEqual({
+      message: 'User updated successfully!',
+    });
+
+    expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  //UpdateUser - Admin
+  it('should update succesfully if you are trying update an user beeing Admin', async () => {
+    const updateUserDto: UpdateUserDto = {
+      name: 'Wesley',
+      email: 'wesley@email.com',
+      bio: 'minha primeira bio!',
+      age: 25,
+    };
+
+    //Usuario
+    const userId = '1';
+
+    //Usuario logado
+    const user = {
+      _id: '2',
+      role: 'admin',
+    };
+
+    mockUserModel.findByIdAndUpdate.mockResolvedValue({
+      _id: userId,
+      ...updateUserDto,
+    });
+
+    const result = await service.updateUser(
+      userId,
+      updateUserDto,
+      user as User,
+    );
+
     expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
       userId,
       updateUserDto,
