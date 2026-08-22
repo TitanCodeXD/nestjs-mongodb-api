@@ -33,14 +33,6 @@ export class PostsService {
     return this.postModel.find().populate('author', 'name');
   }
 
-  //Create Post Function
-  async createPost(createPostDto: CreatePostDto, user: User) {
-    return this.postModel.create({
-      ...createPostDto,
-      author: user._id,
-    });
-  }
-
   //Get post by Id Functiob
   async findPostById(id: string) {
     if (!Types.ObjectId.isValid(id)) {
@@ -53,6 +45,14 @@ export class PostsService {
     }
 
     return post;
+  }
+
+  //Create Post Function
+  async createPost(createPostDto: CreatePostDto, user: User) {
+    return this.postModel.create({
+      ...createPostDto,
+      author: user._id,
+    });
   }
 
   //Update Post Function

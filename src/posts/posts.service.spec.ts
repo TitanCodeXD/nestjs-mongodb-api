@@ -1,6 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PostsService } from './posts.service';
 
+//Errors
+//Errors
+import {
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
+
 //Token e userSchema
 import { getModelToken } from '@nestjs/mongoose';
 import { Post } from './schemas/post.schema';
@@ -12,6 +21,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 const mockPostModel = {
   find: jest.fn(),
   populate: jest.fn(),
+  findById: jest.fn(),
 };
 
 describe('PostsService', () => {
@@ -53,10 +63,10 @@ describe('PostsService', () => {
     ];
 
     const mockQuery = {
-      populate: jest.fn().mockResolvedValue(posts),
+      populate: jest.fn().mockResolvedValue(posts), //Resolved poir é o fim da 'cadeia de funções agregadas'
     };
 
-    mockPostModel.find.mockReturnValue(mockQuery);
+    mockPostModel.find.mockReturnValue(mockQuery); //Return pois precisa do contexto para o .populate
 
     const result = await service.findAllPosts();
 
@@ -65,5 +75,37 @@ describe('PostsService', () => {
     expect(mockPostModel.find).toHaveBeenCalledTimes(1);
 
     expect(mockQuery.populate).toHaveBeenCalledWith('author', 'name');
+  });
+
+  it('should return BadRequestException if invalid post Id', async () => {
+    await expect(service.findPostById('213')).rejects.toThrow(
+      BadRequestException,
+    );
+
+    expect(mockPostModel.findById).not.toHaveBeenCalled();
+  });
+
+  it('should return a post by post Id', async () => {
+    const post = {
+      _id: '6a84e6cb20b4580b66612ff9',
+      title: 'Título',
+      author: 'Dono',
+      content: 'Conteúdo',
+      tags: ['animais', 'gatos'],
+    };
+
+    const mockQuery = {
+      populate: jest.fn().mockResolvedValue(post),
+    };
+
+    mockPostModel.findById.mockReturnValue(mockQuery);
+
+    const result = await service.findPostById('6a84e6cb20b4580b66612ff9');
+
+    expect(result).toEqual(post);
+
+    expect(mockQuery.populate).toHaveBeenCalledWith('author', 'name');
+
+    expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
   });
 });
