@@ -433,4 +433,48 @@ describe('UsersService', () => {
 
     expect(mockUserModel.findOneAndDelete).toHaveBeenCalledTimes(1);
   });
+
+  //Delete User - ForbiddenException Error
+  it('should return and error if you are not the owner', async () => {
+    //a ser deletado
+    const userId = '1';
+
+    //user logado
+    const user = {
+      _id: '2',
+      role: 'user',
+    };
+
+    //nem chega ao mock do banco
+
+    await expect(service.deleteUser(userId, user as User)).rejects.toThrow(
+      ForbiddenException,
+    );
+
+    expect(mockUserModel.findOneAndDelete).not.toHaveBeenCalledTimes(1);
+  });
+
+  //Delete User - NotFoundException Error
+  it('should return NotFoundException error', async () => {
+    //a ser deletado
+    const userId = '1';
+
+    //user logado
+    const user = {
+      _id: '1',
+      role: 'user',
+    };
+
+    mockUserModel.findOneAndDelete.mockResolvedValue(null);
+
+    await expect(service.deleteUser(userId, user as User)).rejects.toThrow(
+      NotFoundException,
+    );
+
+    expect(mockUserModel.findOneAndDelete).toHaveBeenCalledWith({
+      _id: userId,
+    });
+
+    expect(mockUserModel.findOneAndDelete).toHaveBeenCalledTimes(1);
+  });
 });
