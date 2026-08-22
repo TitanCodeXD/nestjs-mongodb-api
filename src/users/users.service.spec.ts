@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 
 //Errors
-import { NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 
 //Token e userSchema
 import { getModelToken } from '@nestjs/mongoose';
@@ -314,6 +318,69 @@ describe('UsersService', () => {
     expect(result).toEqual({
       message: 'User updated successfully!',
     });
+
+    expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  //Update an User - ForbiddenException Error
+  it('should return ForbiddenException if user is not an admin and not the owner of the account', async () => {
+    const updateUserDto: UpdateUserDto = {
+      name: 'Wesley',
+      email: 'wesley@email.com',
+      bio: 'minha primeira bio!',
+      age: 25,
+    };
+
+    //Usuario
+    const userId = '1';
+
+    //Usuario logado
+    const user = {
+      _id: '2',
+      role: 'user',
+    };
+
+    //esperado que de erro por nao ser admin nem o mesmo id de user
+    await expect(
+      service.updateUser(userId, updateUserDto, user as User),
+    ).rejects.toThrow(ForbiddenException);
+
+    // garantir quem o mongo nem chamado foi
+    expect(mockUserModel.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
+  //Update an User - User not found
+  it('should return NotFoundException', async () => {
+    const updateUserDto: UpdateUserDto = {
+      name: 'Wesley',
+      email: 'wesley@email.com',
+      bio: 'minha primeira bio!',
+      age: 25,
+    };
+
+    //Usuario
+    const userId = '1';
+
+    //Usuario logado
+    const user = {
+      _id: '1',
+      role: 'user',
+    };
+
+    //É esperado que o banco tente achar o id e nao consiga, ache null
+    mockUserModel.findByIdAndUpdate.mockResolvedValue(null);
+
+    await expect(
+      service.updateUser(userId, updateUserDto, user as User),
+    ).rejects.toThrow(NotFoundException);
+
+    expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      userId,
+      updateUserDto,
+      {
+        returnDocument: 'after',
+      },
+    );
 
     expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
   });
