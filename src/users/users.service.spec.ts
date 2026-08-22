@@ -37,6 +37,7 @@ describe('UsersService', () => {
     findById: jest.fn(), //Função find by id 'falsa'
     create: jest.fn(), //Função create 'falsa'
     findByIdAndUpdate: jest.fn(), //Função de update 'falsa'
+    findOneAndDelete: jest.fn(), //Função de delete 'falsa'
   };
 
   beforeEach(async () => {
@@ -383,5 +384,53 @@ describe('UsersService', () => {
     );
 
     expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  //Delete user succesfully - beeing owner
+  it('should delete user succesfully beeing owner', async () => {
+    //a ser deletado
+    const userId = '1';
+
+    //user logado
+    const user = {
+      _id: userId,
+      role: 'user',
+    };
+
+    mockUserModel.findOneAndDelete.mockResolvedValue({ _id: userId });
+
+    const result = await service.deleteUser(userId, user as User);
+
+    expect(result).toEqual({ message: 'User deleted successfully' });
+
+    expect(mockUserModel.findOneAndDelete).toHaveBeenCalledWith({
+      _id: userId,
+    });
+
+    expect(mockUserModel.findOneAndDelete).toHaveBeenCalledTimes(1);
+  });
+
+  //Delete user succesfully - beeing admin
+  it('should delete user succesfully beeing admin', async () => {
+    //a ser deletado
+    const userId = '1';
+
+    //user logado
+    const user = {
+      _id: '2',
+      role: 'admin',
+    };
+
+    mockUserModel.findOneAndDelete.mockResolvedValue({ _id: userId });
+
+    const result = await service.deleteUser(userId, user as User);
+
+    expect(result).toEqual({ message: 'User deleted successfully' });
+
+    expect(mockUserModel.findOneAndDelete).toHaveBeenCalledWith({
+      _id: userId,
+    });
+
+    expect(mockUserModel.findOneAndDelete).toHaveBeenCalledTimes(1);
   });
 });
