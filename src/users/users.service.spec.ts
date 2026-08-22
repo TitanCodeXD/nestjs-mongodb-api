@@ -18,7 +18,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 //bcrypt mock
 import * as bcrypt from 'bcrypt';
-import { UserInfo } from 'os';
 
 jest.mock('bcrypt', () => ({
   hash: jest.fn(),
