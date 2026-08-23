@@ -38,7 +38,7 @@ export class PostsController {
 
   //UpdatePost
   @Patch(':id')
-  updateUser(
+  updatePost(
     @Param('id') id: string,
     @Body() updatePostDto: UpdatePostDto,
     @Request() req: any,
