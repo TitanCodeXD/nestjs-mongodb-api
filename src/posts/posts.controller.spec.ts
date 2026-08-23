@@ -60,6 +60,8 @@ describe('PostsController', () => {
     const result = await controller.findAllPosts();
 
     expect(result).toEqual(posts);
+
+    expect(mockPostsService.findAllPosts).toHaveBeenCalledTimes(1);
   });
 
   it('should return post by id', async () => {
@@ -79,6 +81,8 @@ describe('PostsController', () => {
     expect(result).toEqual(post);
 
     expect(mockPostsService.findPostById).toHaveBeenCalledWith(id);
+
+    expect(mockPostsService.findPostById).toHaveBeenCalledTimes(1);
   });
 
   it('should craete a post', async () => {
@@ -106,6 +110,8 @@ describe('PostsController', () => {
       createPost,
       req.user,
     );
+
+    expect(mockPostsService.createPost).toHaveBeenCalledTimes(1);
   });
 
   it('should update a post', async () => {
@@ -136,6 +142,8 @@ describe('PostsController', () => {
       updatePost,
       req.user,
     );
+
+    expect(mockPostsService.updatePost).toHaveBeenCalledTimes(1);
   });
 
   it('should delete a post', async () => {
@@ -156,5 +164,7 @@ describe('PostsController', () => {
     expect(result).toEqual(id);
 
     expect(mockPostsService.deletePost).toHaveBeenCalledWith(id, req.user);
+
+    expect(mockPostsService.deletePost).toHaveBeenCalledTimes(1);
   });
 });

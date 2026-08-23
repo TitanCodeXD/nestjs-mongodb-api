@@ -65,6 +65,8 @@ describe('PostCommentsController', () => {
       createCommentDto,
       req.user,
     );
+
+    expect(mockPostCommentsService.createComment).toHaveBeenCalledTimes(1);
   });
 
   it('should return comments of a post', async () => {
@@ -84,5 +86,7 @@ describe('PostCommentsController', () => {
     expect(mockPostCommentsService.findPostComments).toHaveBeenCalledWith(
       postId,
     );
+
+    expect(mockPostCommentsService.findPostComments).toHaveBeenCalledTimes(1);
   });
 });
