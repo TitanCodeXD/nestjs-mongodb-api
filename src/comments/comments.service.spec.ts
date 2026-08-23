@@ -29,6 +29,8 @@ const mockCommentModel = {
   find: jest.fn(),
   findById: jest.fn(),
   create: jest.fn(),
+  findByIdAndUpdate: jest.fn(),
+  findByIdAndDelete: jest.fn(),
 };
 
 const mockPostModel = {
@@ -298,7 +300,7 @@ describe('CommentsService', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
-  it('should return NotFoundException if invalid comment not found to update', async () => {
+  it('should return NotFoundException if comment not found to update', async () => {
     const updateCommentDto: UpdateCommentDto = {
       content: 'Conteúdo',
     };
@@ -307,12 +309,237 @@ describe('CommentsService', () => {
       _id: '123',
     };
 
-    const id = '6a84e6cb20b4580b66612fc9';
+    const commentId = '6a84e6cb20b4580b66612fc9';
 
     mockCommentModel.findById.mockResolvedValue(null);
 
     await expect(
-      service.updateComment(id, updateCommentDto, user as User),
+      service.updateComment(commentId, updateCommentDto, user as User),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it('should update comment successfully beeing owner of the comment', async () => {
+    const updateCommentDto: UpdateCommentDto = {
+      content: 'Conteúdo',
+    };
+
+    const user = {
+      _id: '6a84e6cb20b4580b66612fc9',
+      role: 'user',
+    };
+
+    const comment = {
+      _id: '6a84e6cb20b4580b66612fc9',
+      author: '6a84e6cb20b4580b66612fc9',
+    };
+
+    mockCommentModel.findById.mockResolvedValue(comment);
+
+    mockCommentModel.findByIdAndUpdate.mockResolvedValue({
+      ...comment,
+      updateCommentDto,
+      returnDocument: 'after',
+    });
+
+    const result = await service.updateComment(
+      comment._id,
+      updateCommentDto,
+      user as User,
+    );
+
+    expect(result).toEqual({ message: 'Comment updated successfully!' });
+
+    expect(mockCommentModel.findById).toHaveBeenCalledTimes(1);
+    expect(mockCommentModel.findById).toHaveBeenCalledWith(comment._id);
+    expect(mockCommentModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+    expect(mockCommentModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      comment._id,
+      updateCommentDto,
+      {
+        returnDocument: 'after',
+      },
+    );
+  });
+
+  it('should update comment successfully beeing admin', async () => {
+    const updateCommentDto: UpdateCommentDto = {
+      content: 'Conteúdo',
+    };
+
+    const user = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      role: 'admin',
+    };
+
+    const comment = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      author: '6a84e6ca20b4580b66612fc8',
+    };
+
+    mockCommentModel.findById.mockResolvedValue(comment);
+
+    mockCommentModel.findByIdAndUpdate.mockResolvedValue({
+      ...comment,
+      updateCommentDto,
+      returnDocument: 'after',
+    });
+
+    const result = await service.updateComment(
+      comment._id,
+      updateCommentDto,
+      user as User,
+    );
+
+    expect(result).toEqual({ message: 'Comment updated successfully!' });
+
+    expect(mockCommentModel.findById).toHaveBeenCalledTimes(1);
+    expect(mockCommentModel.findById).toHaveBeenCalledWith(comment._id);
+    expect(mockCommentModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+    expect(mockCommentModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      comment._id,
+      updateCommentDto,
+      {
+        returnDocument: 'after',
+      },
+    );
+  });
+
+  it('should return ForbiddenException if user is not the owner os the post and is not an admin to update comment', async () => {
+    const updateCommentDto: UpdateCommentDto = {
+      content: 'Conteúdo',
+    };
+
+    const user = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      role: 'user',
+    };
+
+    const comment = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      author: '6a84e6ca20b4580b66612fc8',
+    };
+
+    mockCommentModel.findById.mockResolvedValue(comment);
+
+    await expect(
+      service.updateComment(comment._id, updateCommentDto, user as User),
+    ).rejects.toThrow(ForbiddenException);
+
+    expect(mockCommentModel.findById).toHaveBeenCalledTimes(1);
+
+    expect(mockCommentModel.findById).toHaveBeenCalledWith(comment._id);
+
+    expect(mockCommentModel.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it('should return BadRequestException if invalid comment id to delete', async () => {
+    const user = {
+      _id: '123',
+    };
+
+    const id = '123';
+
+    await expect(service.deleteComment(id, user as User)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('should return NotFoundException if comment not found to delete', async () => {
+    const user = {
+      _id: '123',
+    };
+
+    const commentId = '6a84e6cb20b4580b66612fc9';
+
+    mockCommentModel.findById.mockResolvedValue(null);
+
+    await expect(
+      service.deleteComment(commentId, user as User),
+    ).rejects.toThrow(NotFoundException);
+
+    expect(mockCommentModel.findById).toHaveBeenCalledTimes(1);
+  });
+
+  it('should delete comment successfully beeing owner of the comment', async () => {
+    const user = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      role: 'user',
+    };
+
+    const comment = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      author: '6a84e6ca20b4580b66612fc9',
+    };
+
+    mockCommentModel.findById.mockResolvedValue(comment);
+
+    mockCommentModel.findByIdAndDelete.mockResolvedValue(comment._id);
+
+    const result = await service.deleteComment(comment._id, user as User);
+
+    expect(result).toEqual({ message: 'Comment deleted successfully!' });
+
+    expect(mockCommentModel.findById).toHaveBeenCalledTimes(1);
+
+    expect(mockCommentModel.findById).toHaveBeenCalledWith(comment._id);
+
+    expect(mockCommentModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
+
+    expect(mockCommentModel.findByIdAndDelete).toHaveBeenCalledWith(
+      comment._id,
+    );
+  });
+
+  it('should delete comment successfully beeing admin', async () => {
+    const user = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      role: 'admin',
+    };
+
+    const comment = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      author: '6a84e6ca20b4580b66612fc8',
+    };
+
+    mockCommentModel.findById.mockResolvedValue(comment);
+
+    mockCommentModel.findByIdAndDelete.mockResolvedValue(comment._id);
+
+    const result = await service.deleteComment(comment._id, user as User);
+
+    expect(result).toEqual({ message: 'Comment deleted successfully!' });
+
+    expect(mockCommentModel.findById).toHaveBeenCalledTimes(1);
+
+    expect(mockCommentModel.findById).toHaveBeenCalledWith(comment._id);
+
+    expect(mockCommentModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
+
+    expect(mockCommentModel.findByIdAndDelete).toHaveBeenCalledWith(
+      comment._id,
+    );
+  });
+
+  it('should return ForbiddenException if user is not the owner os the post and is not an admin to delete comment', async () => {
+    const user = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      role: 'user',
+    };
+
+    const comment = {
+      _id: '6a84e6ca20b4580b66612fc9',
+      author: '6a84e6ca20b4580b66612fc8',
+    };
+
+    mockCommentModel.findById.mockResolvedValue(comment);
+
+    await expect(
+      service.deleteComment(comment._id, user as User),
+    ).rejects.toThrow(ForbiddenException);
+
+    expect(mockCommentModel.findById).toHaveBeenCalledTimes(1);
+    expect(mockCommentModel.findById).toHaveBeenCalledWith(comment._id);
+
+    expect(mockCommentModel.findByIdAndDelete).not.toHaveBeenCalled();
   });
 });
