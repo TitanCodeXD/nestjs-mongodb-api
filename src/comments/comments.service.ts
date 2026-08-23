@@ -60,7 +60,7 @@ export class CommentsService {
   //Create Comment
   async createComment(
     postId: string,
-    createDocumentDtto: CreateCommentDto,
+    createCommentDto: CreateCommentDto,
     user: User,
   ) {
     //id válido?
@@ -77,7 +77,7 @@ export class CommentsService {
     }
     // Se exite, vamos dar um commentModel.create() e dar populate no post com o mentario que foi criado, mas passando o author do comment como o user que esta no payload do jwt que é o req.user
     const comment = await this.commentModel.create({
-      ...createDocumentDtto,
+      ...createCommentDto,
       post: post._id,
       author: user._id,
     });
