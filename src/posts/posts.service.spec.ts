@@ -27,6 +27,7 @@ const mockPostModel = {
   findById: jest.fn(),
   create: jest.fn(),
   findByIdAndUpdate: jest.fn(),
+  findByIdAndDelete: jest.fn(),
 };
 
 describe('PostsService', () => {
@@ -265,7 +266,7 @@ describe('PostsService', () => {
     expect(mockPostModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
   });
 
-  it('should return ForbiddenException if user is not an admin and not the owner of the post', async () => {
+  it('should return ForbiddenException if user is not an admin and not the owner of the post to update post', async () => {
     const updatePostDto: UpdatePostDto = {
       title: 'Título',
       content: 'Conteúdo',
@@ -292,5 +293,110 @@ describe('PostsService', () => {
     expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
 
     expect(mockPostModel.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it('should return BadRequestException if invalid object Id to delete post', async () => {
+    const user = {
+      _id: '123',
+    };
+
+    const invalidId = '123';
+
+    await expect(service.deletePost(invalidId, user as User)).rejects.toThrow(
+      BadRequestException,
+    );
+
+    expect(mockPostModel.findByIdAndDelete).not.toHaveBeenCalled();
+  });
+
+  it('should return NotFoundException if post does not exist', async () => {
+    const user = {
+      _id: '123',
+    };
+
+    const notFoundId = '6a84e6cb20b4580b66612fc9';
+
+    mockPostModel.findById.mockResolvedValue(null);
+
+    await expect(service.deletePost(notFoundId, user as User)).rejects.toThrow(
+      NotFoundException,
+    );
+
+    expect(mockPostModel.findById).toHaveBeenCalledWith(notFoundId);
+
+    expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
+  });
+
+  it('should delete the post if user is the owner of the post', async () => {
+    const user = {
+      _id: '123',
+      role: 'user',
+    };
+
+    const post = {
+      author: '123',
+    };
+
+    const id = '6a84e6cb20b4580b66612fc9';
+
+    mockPostModel.findById.mockResolvedValue(post);
+
+    mockPostModel.findByIdAndDelete.mockResolvedValue({ ...post, id, user });
+
+    const result = await service.deletePost(id, user as User);
+
+    expect(result).toEqual({ message: 'Post deleted successfully!' });
+
+    expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
+
+    expect(mockPostModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('should delete the post if user is admin', async () => {
+    const user = {
+      _id: '123',
+      role: 'admin',
+    };
+
+    const post = {
+      author: '1234',
+    };
+
+    const id = '6a84e6cb20b4580b66612fc9';
+
+    mockPostModel.findById.mockResolvedValue(post);
+
+    mockPostModel.findByIdAndDelete.mockResolvedValue({ ...post, id, user });
+
+    const result = await service.deletePost(id, user as User);
+
+    expect(result).toEqual({ message: 'Post deleted successfully!' });
+
+    expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
+
+    expect(mockPostModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return ForbiddenException if user is not an admin and not the owner of the post to delete', async () => {
+    const user = {
+      _id: '123',
+      role: 'user',
+    };
+
+    const post = {
+      author: '1234',
+    };
+
+    const id = '6a84e6cb20b4580b66612fc9';
+
+    mockPostModel.findById.mockResolvedValue(post);
+
+    await expect(service.deletePost(id, user as User)).rejects.toThrow(
+      ForbiddenException,
+    );
+
+    expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
+
+    expect(mockPostModel.findByIdAndDelete).not.toHaveBeenCalled();
   });
 });
