@@ -9,6 +9,9 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 
+//Mongoose
+import { Types } from 'mongoose';
+
 //Token e userSchema
 import { getModelToken } from '@nestjs/mongoose';
 import { Comment } from './schemas/comment.schema';
@@ -185,5 +188,97 @@ describe('CommentsService', () => {
     expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
 
     expect(mockCommentModel.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return BadRequestException if invalid post id', async () => {
+    const createComment: CreateCommentDto = {
+      content: 'Conteúdo',
+    };
+
+    const user = {
+      _id: '123',
+    };
+
+    const postId = '123';
+
+    await expect(service.findPostComments(postId)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('should return NotFoundException if post does not found', async () => {
+    const createComment: CreateCommentDto = {
+      content: 'Conteúdo',
+    };
+
+    const user = {
+      _id: '123',
+    };
+
+    const postId = '6a84e6cb20b4580b66612fc9';
+
+    mockPostModel.findById.mockResolvedValue(null);
+
+    await expect(service.findPostComments(postId)).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it('should return all comments of a post', async () => {
+    const postId = '6a84e6cb20b4580b66612fc9';
+
+    const post = {
+      _id: postId,
+    };
+
+    const comments = [
+      {
+        content: 'Primeiro comentário',
+        post: postId,
+        author: '123',
+      },
+      {
+        content: 'Segundo comentário',
+        post: postId,
+        author: '456',
+      },
+    ];
+
+    const mockQuery = {
+      sort: jest.fn(),
+      populate: jest.fn(),
+    };
+
+    mockPostModel.findById.mockResolvedValue(post);
+
+    mockQuery.sort.mockReturnValue(mockQuery);
+
+    mockQuery.populate
+      .mockReturnValueOnce(mockQuery)
+      .mockResolvedValueOnce(comments);
+
+    mockCommentModel.find.mockReturnValue(mockQuery);
+
+    const result = await service.findPostComments(postId);
+
+    expect(result).toEqual(comments);
+
+    expect(mockPostModel.findById).toHaveBeenCalledWith(postId);
+
+    expect(mockCommentModel.find).toHaveBeenCalledWith({
+      post: new Types.ObjectId(postId),
+    });
+
+    expect(mockQuery.sort).toHaveBeenCalledWith({
+      createdAt: -1,
+    });
+
+    expect(mockQuery.populate).toHaveBeenNthCalledWith(1, 'author', 'name');
+
+    expect(mockQuery.populate).toHaveBeenNthCalledWith(2, 'post', 'title');
+
+    expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
+
+    expect(mockCommentModel.find).toHaveBeenCalledTimes(1);
   });
 });
