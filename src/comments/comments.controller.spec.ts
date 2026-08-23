@@ -28,4 +28,8 @@ describe('CommentsController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
+
+  it('should return all comments', () => {
+    expect(controller).toBeDefined();
+  });
 });
