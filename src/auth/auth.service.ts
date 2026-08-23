@@ -46,7 +46,7 @@ export class AuthService {
     const accessToken = this.jwtService.sign(payload);
 
     return {
-      message: 'Login successful',
+      message: 'Login successfull',
       access_token: accessToken,
       id: user._id,
     };
