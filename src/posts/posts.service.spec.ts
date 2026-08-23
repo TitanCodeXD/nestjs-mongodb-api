@@ -108,4 +108,20 @@ describe('PostsService', () => {
 
     expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
   });
+
+  it('should return NotFoundException if Post Id does not exist', async () => {
+    const id = '6a84e6cb20b4580b66612fc9';
+
+    const mockQuery = {
+      populate: jest.fn().mockResolvedValue(null),
+    };
+
+    mockPostModel.findById.mockReturnValue(mockQuery);
+
+    await expect(service.findPostById(id)).rejects.toThrow(NotFoundException);
+
+    expect(mockQuery.populate).toHaveBeenCalledWith('author', 'name');
+
+    expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
+  });
 });
