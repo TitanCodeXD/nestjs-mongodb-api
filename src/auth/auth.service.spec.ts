@@ -2,16 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 
 //Errors
-import {
-  NotFoundException,
-  ConflictException,
-  ForbiddenException,
-  BadRequestException,
-  UnauthorizedException,
-} from '@nestjs/common';
-
-//Mongoose
-import { Types } from 'mongoose';
+import { UnauthorizedException } from '@nestjs/common';
 
 //Dto
 import { LoginDto } from './dto/login.dto';
