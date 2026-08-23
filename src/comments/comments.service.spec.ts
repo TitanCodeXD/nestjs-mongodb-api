@@ -281,4 +281,38 @@ describe('CommentsService', () => {
 
     expect(mockCommentModel.find).toHaveBeenCalledTimes(1);
   });
+
+  it('should return BadRequestException if invalid comment id to update', async () => {
+    const updateCommentDto: UpdateCommentDto = {
+      content: 'Conteúdo',
+    };
+
+    const user = {
+      _id: '123',
+    };
+
+    const id = '123';
+
+    await expect(
+      service.updateComment(id, updateCommentDto, user as User),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('should return NotFoundException if invalid comment not found to update', async () => {
+    const updateCommentDto: UpdateCommentDto = {
+      content: 'Conteúdo',
+    };
+
+    const user = {
+      _id: '123',
+    };
+
+    const id = '6a84e6cb20b4580b66612fc9';
+
+    mockCommentModel.findById.mockResolvedValue(null);
+
+    await expect(
+      service.updateComment(id, updateCommentDto, user as User),
+    ).rejects.toThrow(NotFoundException);
+  });
 });
