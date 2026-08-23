@@ -14,6 +14,9 @@ import {
 import { getModelToken } from '@nestjs/mongoose';
 import { Post } from './schemas/post.schema';
 
+//User
+import { User } from 'src/users/schemas/user.schema';
+
 //Dto
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -22,6 +25,7 @@ const mockPostModel = {
   find: jest.fn(),
   populate: jest.fn(),
   findById: jest.fn(),
+  create: jest.fn(),
 };
 
 describe('PostsService', () => {
@@ -124,4 +128,33 @@ describe('PostsService', () => {
 
     expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
   });
+
+  it('should create a post', async () => {
+    const createPostDto: CreatePostDto = {
+      title: 'Título',
+      content: 'Conteúdo',
+      tags: ['animais', 'gatos'],
+    };
+
+    const user = {
+      _id: '123',
+    };
+
+    mockPostModel.create.mockResolvedValue({
+      ...createPostDto,
+      author: user._id,
+    });
+
+    const result = await service.createPost(createPostDto, user as User);
+
+    expect(result).toEqual({ ...createPostDto, author: user._id });
+
+    expect(mockPostModel.create).toHaveBeenCalledWith({
+      ...createPostDto,
+      author: user._id,
+    });
+    expect(mockPostModel.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('', async () => {});
 });
