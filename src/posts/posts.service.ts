@@ -57,7 +57,7 @@ export class PostsService {
 
   //Update Post Function
   async updatePost(id: string, updatePostDto: UpdatePostDto, user: User) {
-    //Id do post existe?
+    //Id do post é um objectId valido do mongodb?
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid post ID');
     }

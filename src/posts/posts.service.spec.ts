@@ -26,6 +26,7 @@ const mockPostModel = {
   populate: jest.fn(),
   findById: jest.fn(),
   create: jest.fn(),
+  findByIdAndUpdate: jest.fn(),
 };
 
 describe('PostsService', () => {
@@ -156,5 +157,140 @@ describe('PostsService', () => {
     expect(mockPostModel.create).toHaveBeenCalledTimes(1);
   });
 
-  it('', async () => {});
+  it('should return BadRequestException if invalid object Id', async () => {
+    const updatePostDto: UpdatePostDto = {
+      title: 'Título',
+      content: 'Conteúdo',
+      tags: ['animais', 'gatos'],
+    };
+
+    const user = {
+      _id: '123',
+    };
+
+    const invalidId = '123';
+
+    await expect(
+      service.updatePost(invalidId, updatePostDto, user as User),
+    ).rejects.toThrow(BadRequestException);
+
+    expect(mockPostModel.findByIdAndUpdate).not.toHaveBeenCalledTimes(1);
+  });
+
+  it('should return NotFoundException if post does not exist', async () => {
+    const updatePostDto: UpdatePostDto = {
+      title: 'Título',
+      content: 'Conteúdo',
+      tags: ['animais', 'gatos'],
+    };
+
+    const user = {
+      _id: '123',
+    };
+
+    const notFoundId = '6a84e6cb20b4580b66612fc9';
+
+    mockPostModel.findById.mockResolvedValue(null);
+
+    await expect(
+      service.updatePost(notFoundId, updatePostDto, user as User),
+    ).rejects.toThrow(NotFoundException);
+
+    expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
+  });
+
+  it('should update the post successfully beeing owner of the post', async () => {
+    const updatePostDto: UpdatePostDto = {
+      title: 'Título',
+      content: 'Conteúdo',
+      tags: ['animais', 'gatos'],
+    };
+
+    const user = {
+      _id: '123',
+      role: 'user',
+    };
+
+    const post = {
+      author: '123',
+    };
+
+    const id = '6a84e6cb20b4580b66612fc9';
+
+    mockPostModel.findById.mockResolvedValue(post);
+
+    mockPostModel.findByIdAndUpdate.mockResolvedValue({
+      _id: id,
+      ...post,
+      ...updatePostDto,
+    });
+
+    const result = await service.updatePost(id, updatePostDto, user as User);
+
+    expect(result).toEqual({ message: 'Post updated successfully!' });
+
+    expect(mockPostModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it('should update the post successfully beeing admin', async () => {
+    const updatePostDto: UpdatePostDto = {
+      title: 'Título',
+      content: 'Conteúdo',
+      tags: ['animais', 'gatos'],
+    };
+
+    const user = {
+      _id: '123',
+      role: 'admin',
+    };
+
+    const post = {
+      author: '1234',
+    };
+
+    const id = '6a84e6cb20b4580b66612fc9';
+
+    mockPostModel.findById.mockResolvedValue(post);
+
+    mockPostModel.findByIdAndUpdate.mockResolvedValue({
+      _id: id,
+      ...post,
+      ...updatePostDto,
+    });
+
+    const result = await service.updatePost(id, updatePostDto, user as User);
+
+    expect(result).toEqual({ message: 'Post updated successfully!' });
+
+    expect(mockPostModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return ForbiddenException if user is not an admin and not the owner of the post', async () => {
+    const updatePostDto: UpdatePostDto = {
+      title: 'Título',
+      content: 'Conteúdo',
+      tags: ['animais', 'gatos'],
+    };
+
+    const user = {
+      _id: '123',
+      role: 'user',
+    };
+
+    const post = {
+      author: '1234',
+    };
+
+    const id = '6a84e6cb20b4580b66612fc9';
+
+    mockPostModel.findById.mockResolvedValue(post);
+
+    await expect(
+      service.updatePost(id, updatePostDto, user as User),
+    ).rejects.toThrow(ForbiddenException);
+
+    expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
+
+    expect(mockPostModel.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
 });
