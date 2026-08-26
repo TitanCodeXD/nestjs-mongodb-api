@@ -74,8 +74,8 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiParam({
     name: 'id',
-    description: 'The ID of the user to retrieve',
-    example: '64f1a2b3c4d5e6f7a8b9c0d1',
+    description: 'The ID (uuid) of the user to retrieve',
+    example: '81e168ae-a5b3-4e41-962a-a2c71590ceaa',
   })
   @ApiResponse({
     status: 200,
@@ -116,8 +116,8 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiParam({
     name: 'id',
-    description: 'The ID of the user to update',
-    example: '64f1a2b3c4d5e6f7a8b9c0d1',
+    description: 'The ID (uuid) of the user to update',
+    example: '81e168ae-a5b3-4e41-962a-a2c71590ceaa',
   })
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({
@@ -146,12 +146,14 @@ export class UsersController {
 
   //DELETE USER
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a user' })
+  @ApiOperation({
+    summary: 'Delete a user and their related posts and comments',
+  })
   @ApiBearerAuth()
   @ApiParam({
     name: 'id',
-    description: 'The ID of the user to delete',
-    example: '64f1a2b3c4d5e6f7a8b9c0d1',
+    description: 'The ID (uuid) of the user to delete',
+    example: '81e168ae-a5b3-4e41-962a-a2c71590ceaa',
   })
   @ApiResponse({
     status: 200,
