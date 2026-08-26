@@ -13,6 +13,7 @@ import {
 //Token e userSchema
 import { getModelToken } from '@nestjs/mongoose';
 import { Post } from './schemas/post.schema';
+import { Comment } from '../comments/schemas/comment.schema';
 
 //User
 import { User } from 'src/users/schemas/user.schema';
@@ -30,6 +31,10 @@ const mockPostModel = {
   findByIdAndDelete: jest.fn(),
 };
 
+const mockCommentModel = {
+  deleteMany: jest.fn(),
+};
+
 describe('PostsService', () => {
   let service: PostsService;
 
@@ -41,6 +46,10 @@ describe('PostsService', () => {
         {
           provide: getModelToken(Post.name), //Pegar o token do PostModel para conseguirmos 'simular'/mock do banco
           useValue: mockPostModel, //Mock das funçoes
+        },
+        {
+          provide: getModelToken(Comment.name), //Pegar o token do PostModel para conseguirmos 'simular'/mock do banco
+          useValue: mockCommentModel, //Mock das funçoes
         },
       ],
     }).compile();
@@ -334,8 +343,17 @@ describe('PostsService', () => {
     };
 
     const post = {
+      _id: '1234',
       author: '123',
     };
+
+    const commentsOfThePost = [
+      {
+        post: '1234',
+        content: 'comentario 1',
+      },
+      { post: '1234', content: 'comentario 2' },
+    ];
 
     const id = '6a84e6cb20b4580b66612fc9';
 

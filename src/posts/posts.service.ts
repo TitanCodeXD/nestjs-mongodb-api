@@ -13,6 +13,7 @@ import { Types } from 'mongoose';
 
 //Schema
 import { Post } from './schemas/post.schema';
+import { Comment } from '../comments/schemas/comment.schema';
 
 //Dto
 import { CreatePostDto } from './dto/create-post.dto';
@@ -26,6 +27,9 @@ export class PostsService {
   constructor(
     @InjectModel(Post.name)
     private readonly postModel: Model<Post>,
+
+    @InjectModel(Comment.name)
+    private readonly commentModel: Model<Post>,
   ) {}
 
   //Get All Posts Fucntion
@@ -105,6 +109,10 @@ export class PostsService {
     if (!isOwner && !isAdmin) {
       throw new ForbiddenException('You can only delete your own post');
     }
+
+    await this.commentModel.deleteMany({
+      post: post._id,
+    });
 
     await this.postModel.findByIdAndDelete(id);
 
