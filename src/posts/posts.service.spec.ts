@@ -347,17 +347,11 @@ describe('PostsService', () => {
       author: '123',
     };
 
-    const commentsOfThePost = [
-      {
-        post: '1234',
-        content: 'comentario 1',
-      },
-      { post: '1234', content: 'comentario 2' },
-    ];
-
     const id = '6a84e6cb20b4580b66612fc9';
 
     mockPostModel.findById.mockResolvedValue(post);
+
+    mockCommentModel.deleteMany.mockResolvedValue(post);
 
     mockPostModel.findByIdAndDelete.mockResolvedValue({ ...post, id, user });
 
@@ -368,6 +362,11 @@ describe('PostsService', () => {
     expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
 
     expect(mockPostModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
+
+    //Comments em cascada
+    expect(mockCommentModel.deleteMany).toHaveBeenCalledWith({
+      post: post._id,
+    });
   });
 
   it('should delete the post if user is admin', async () => {
@@ -377,6 +376,7 @@ describe('PostsService', () => {
     };
 
     const post = {
+      _id: '1234',
       author: '1234',
     };
 
@@ -393,6 +393,11 @@ describe('PostsService', () => {
     expect(mockPostModel.findById).toHaveBeenCalledTimes(1);
 
     expect(mockPostModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
+
+    //Comments em cascada
+    expect(mockCommentModel.deleteMany).toHaveBeenCalledWith({
+      post: post._id,
+    });
   });
 
   it('should return ForbiddenException if user is not an admin and not the owner of the post to delete', async () => {
