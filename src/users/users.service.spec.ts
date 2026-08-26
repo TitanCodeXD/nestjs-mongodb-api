@@ -11,6 +11,8 @@ import {
 //Token and userSchema
 import { getModelToken } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
+import { Post } from '../posts/schemas/post.schema';
+import { Comment } from '../comments/schemas/comment.schema';
 
 //Dto
 import { CreateUserDto } from './dto/create-user.dto';
@@ -39,6 +41,16 @@ describe('UsersService', () => {
     findOneAndDelete: jest.fn(), //Função de delete 'falsa'
   };
 
+  const mockPostModel = {
+    find: jest.fn(),
+    deleteMany: jest.fn(),
+  };
+
+  const mockCommentModel = {
+    find: jest.fn(),
+    deleteMany: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks(); //A cada teste limpar o 'cache' de mocks
     const module: TestingModule = await Test.createTestingModule({
@@ -47,6 +59,14 @@ describe('UsersService', () => {
         {
           provide: getModelToken(User.name), //Pegar o token do userModel para conseguirmos 'simular'/mock
           useValue: mockUserModel, //Mock das funçoes
+        },
+        {
+          provide: getModelToken(Post.name), //Pegar o token do userModel para conseguirmos 'simular'/mock
+          useValue: mockPostModel, //Mock das funçoes
+        },
+        {
+          provide: getModelToken(Comment.name), //Pegar o token do userModel para conseguirmos 'simular'/mock
+          useValue: mockCommentModel, //Mock das funçoes
         },
       ],
     }).compile();
@@ -396,6 +416,17 @@ describe('UsersService', () => {
       role: 'user',
     };
 
+    const posts = [{ _id: 'post1' }, { _id: 'post2' }];
+
+    const mockQuery = {
+      select: jest.fn().mockResolvedValue(posts),
+    };
+
+    mockPostModel.find.mockReturnValue(mockQuery);
+    mockCommentModel.deleteMany.mockResolvedValue({ deletedCount: 2 });
+    mockPostModel.deleteMany.mockResolvedValue({ deletedCount: 2 });
+    mockUserModel.findOneAndDelete.mockResolvedValue(user);
+
     mockUserModel.findOneAndDelete.mockResolvedValue({ _id: userId });
 
     const result = await service.deleteUser(userId, user as User);
@@ -419,6 +450,17 @@ describe('UsersService', () => {
       _id: '2',
       role: 'admin',
     };
+
+    const posts = [{ _id: 'post1' }, { _id: 'post2' }];
+
+    const mockQuery = {
+      select: jest.fn().mockResolvedValue(posts),
+    };
+
+    mockPostModel.find.mockReturnValue(mockQuery);
+    mockCommentModel.deleteMany.mockResolvedValue({ deletedCount: 2 });
+    mockPostModel.deleteMany.mockResolvedValue({ deletedCount: 2 });
+    mockUserModel.findOneAndDelete.mockResolvedValue(user);
 
     mockUserModel.findOneAndDelete.mockResolvedValue({ _id: userId });
 
