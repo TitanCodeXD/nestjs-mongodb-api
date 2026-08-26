@@ -23,7 +23,6 @@ import { User } from 'src/users/schemas/user.schema';
 //Dto
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { resourceLimits } from 'worker_threads';
 
 const mockCommentModel = {
   find: jest.fn(),

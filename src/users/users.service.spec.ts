@@ -8,7 +8,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 
-//Token e userSchema
+//Token and userSchema
 import { getModelToken } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 
@@ -104,9 +104,9 @@ describe('UsersService', () => {
       name: 'Wesley',
     };
 
-    mockUserModel.findById.mockResolvedValue(user);
+    mockUserModel.findById.mockResolvedValue(user); //esperado
 
-    const result = await service.findUserById('123');
+    const result = await service.findUserById('123'); //obtido
 
     expect(result).toEqual(user);
     expect(mockUserModel.findById).toHaveBeenCalledWith('123');
