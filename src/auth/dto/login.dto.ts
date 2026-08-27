@@ -12,7 +12,7 @@ export class LoginDto {
   email!: string;
 
   @ApiProperty({
-    example: '123456789',
+    example: '12345',
     description: 'User password',
   })
   @IsNotEmpty()
