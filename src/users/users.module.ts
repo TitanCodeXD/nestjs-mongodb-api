@@ -8,6 +8,10 @@ import { User, UserSchema } from './schemas/user.schema';
 import { Post, PostSchema } from '../posts/schemas/post.schema';
 import { Comment, CommentSchema } from '../comments/schemas/comment.schema';
 
+//Queue
+import { QueueService } from 'src/queue/queue.service';
+import { QueueModule } from 'src/queue/queue.module';
+
 @Module({
   imports: [
     //Aqui de fato criamos nosso schema de usuário, que será utilizado para criar o model do Mongoose.
@@ -25,6 +29,7 @@ import { Comment, CommentSchema } from '../comments/schemas/comment.schema';
         schema: CommentSchema,
       },
     ]),
+    QueueModule, //Queue
   ],
 
   controllers: [UsersController],

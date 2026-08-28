@@ -15,6 +15,9 @@ import { Comment } from '../comments/schemas/comment.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+//Queue
+import { QueueService } from 'src/queue/queue.service';
+
 //Bcrypt
 import * as bcrypt from 'bcrypt';
 
@@ -29,6 +32,8 @@ export class UsersService {
 
     @InjectModel(Comment.name)
     private readonly commentModel: Model<Comment>,
+
+    private readonly queueService: QueueService,
   ) {}
 
   //ALL USERS FUNCTION
@@ -52,10 +57,14 @@ export class UsersService {
     try {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-      return await this.userModel.create({
+      const createdUser = await this.userModel.create({
         ...createUserDto,
         password: hashedPassword,
       });
+
+      //await this.queueService.addTestJob(); #TODO
+
+      return createdUser;
     } catch (error: any) {
       if (error?.code === 11000 && error?.keyPattern?.email) {
         throw new ConflictException('Email already exists');
