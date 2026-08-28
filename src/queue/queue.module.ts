@@ -3,9 +3,12 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailProcessor } from './email.processor';
 import { QueueService } from './queue.service';
+import { EmailService } from './email.service';
 
 @Module({
   imports: [
+    ConfigModule,
+
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -18,11 +21,14 @@ import { QueueService } from './queue.service';
         },
       }),
     }),
+
     BullModule.registerQueue({
       name: 'verify-email',
     }),
   ],
-  providers: [EmailProcessor, QueueService],
+
+  providers: [EmailProcessor, QueueService, EmailService],
+
   exports: [QueueService],
 })
 export class QueueModule {}
