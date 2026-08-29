@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
+//Conectar Nodemailer com GMAIL
 @Injectable()
 export class EmailService {
   private readonly transporter: any;
@@ -11,7 +12,7 @@ export class EmailService {
       service: 'gmail',
       auth: {
         user: this.configService.get<string>('EMAIL_USER'),
-        pass: this.configService.get<string>('EMAIL_PASS'),
+        pass: this.configService.get<string>('EMAIL_PASSWORD'),
       },
     });
   }

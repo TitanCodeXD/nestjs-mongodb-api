@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 
+//verify-email --> Jobs
 @Injectable()
 export class QueueService {
   constructor(
@@ -9,9 +10,10 @@ export class QueueService {
     private readonly emailQueue: Queue,
   ) {}
 
+  //Jobs de verify-email
   async addTestJob() {
     return this.emailQueue.add('verify-email-test', {
-      email: 'teste@example.com',
+      email: 'wesleysantos32892653@gmail.com',
       userId: '123',
     });
   }

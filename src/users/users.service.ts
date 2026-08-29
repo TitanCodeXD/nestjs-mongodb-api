@@ -62,7 +62,7 @@ export class UsersService {
         password: hashedPassword,
       });
 
-      //await this.queueService.addTestJob(); #TODO
+      await this.queueService.addTestJob(); //#TODO
 
       return createdUser;
     } catch (error: any) {

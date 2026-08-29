@@ -12,5 +12,10 @@ export class EmailProcessor extends WorkerHost {
     console.log('Job recebido:', job.data);
 
     await this.emailService.sendTestEmail(job.data.email);
+
+    console.log('Email enviado com sucesso!');
+  }
+  catch(error) {
+    console.error('Erro ao enviar email:', error);
   }
 }
