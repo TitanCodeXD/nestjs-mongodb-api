@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 
 //Errors
-import { UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException, NotFoundException } from '@nestjs/common';
 
 //Dto
 import { LoginDto } from './dto/login.dto';
@@ -16,6 +16,7 @@ import * as bcrypt from 'bcrypt';
 //Mocks
 const mockAuthModel = {
   findOne: jest.fn(),
+  save: jest.fn(),
 };
 
 const mockJwtService = {
@@ -155,5 +156,51 @@ describe('AuthService', () => {
       sub: user._id,
       role: user.role,
     });
+  });
+
+  it('should return NotFoundException when trying validate email token', async () => {
+    const token = {
+      emailVerificationToken: '4ba8fc0e-544e-4b8a-84ec-57fc536e0b0e',
+    };
+
+    mockAuthModel.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.verifyEmail(token.emailVerificationToken),
+    ).rejects.toThrow(NotFoundException);
+
+    expect(mockAuthModel.findOne).toHaveBeenCalledWith({
+      emailVerificationToken: token.emailVerificationToken,
+    });
+
+    expect(mockAuthModel.findOne).toHaveBeenCalledTimes(1);
+  });
+
+  it('should verify the user email successfully', async () => {
+    const token = '4ba8fc0e-544e-4b8a-84ec-57fc536e0b0e';
+
+    const user = {
+      _id: '75e53cc8-e240-4386-9f61-0b4b6cced34e',
+      name: 'Wesley',
+      email: 'wesleysantos32892653@gmail.com',
+      age: 21,
+      role: 'user',
+      emailVerified: false,
+      emailVerificationToken: token,
+      save: jest.fn(),
+    };
+
+    mockAuthModel.findOne.mockResolvedValue(user);
+
+    const result = await service.verifyEmail(token);
+
+    expect(mockAuthModel.findOne).toHaveBeenCalledWith({
+      emailVerificationToken: token,
+    });
+
+    expect(user.emailVerified).toBe(true);
+    expect(user.emailVerificationToken).toBeUndefined();
+    expect(user.save).toHaveBeenCalledTimes(1);
+    expect(result).toEqual(user);
   });
 });

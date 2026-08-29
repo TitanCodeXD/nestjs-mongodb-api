@@ -42,12 +42,12 @@ export class AuthController {
   @ApiQuery({
     name: 'token',
     required: true,
-    description: 'The UUID token sended by email to user',
+    description: 'The UUID token sent by email to the user',
     example: '4ba8fc0e-544e-4b8a-84ec-57fc536e0b0e',
   })
   @ApiResponse({
     status: 200,
-    description: 'Email Verified successfully',
+    description: 'Email verified successfully',
   })
   @ApiResponse({
     status: 404,

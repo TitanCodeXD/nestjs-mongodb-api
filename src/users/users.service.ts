@@ -19,7 +19,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 //Queue
-import { QueueService } from 'src/queue/queue.service';
+import { QueueService } from '../queue/queue.service';
 
 //Bcrypt
 import * as bcrypt from 'bcrypt';

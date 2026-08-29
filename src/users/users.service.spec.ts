@@ -1,5 +1,11 @@
+//Mock do QueueService para evitar carregar o BullMQ real durante os testes unitários.
+//O UsersService só precisa simular o comportamento do QueueService, não testar o BullMQ aqui.
+jest.mock('../queue/queue.service', () => ({
+  QueueService: jest.fn(),
+}));
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
+import { QueueService } from '../queue/queue.service';
 
 //Errors
 import {
@@ -51,6 +57,10 @@ describe('UsersService', () => {
     deleteMany: jest.fn(),
   };
 
+  const mockQueueService = {
+    addVerificationEmailJob: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks(); //A cada teste limpar o 'cache' de mocks
     const module: TestingModule = await Test.createTestingModule({
@@ -68,37 +78,15 @@ describe('UsersService', () => {
           provide: getModelToken(Comment.name), //Pegar o token do userModel para conseguirmos 'simular'/mock
           useValue: mockCommentModel, //Mock das funçoes
         },
+        {
+          provide: QueueService,
+          useValue: mockQueueService,
+        },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
   });
-
-  //Apenas no teste do users vou fazer um mapa mental, servira de base de conheicmento para testes nos outros módulos e models existentes no projeto, onde devemos analisar cada cenário importante de cada função
-  // findAllUsers() - 1 cenário
-  // └── retorna todos os usuários
-  //
-  // findUserById() - 2 cenários
-  // ├── usuário existe → retorna usuário
-  // └── usuário não existe → NotFoundException
-  //
-  // create() - 4 cenários
-  // ├── bcrypt → cria hash
-  // ├── dados válidos → cria usuário
-  // ├── email duplicado → ConflictException
-  // └── erro inesperado → propaga erro
-  //
-  // updateUser() - 4 cenário
-  // ├── usuário é dono → atualiza
-  // ├── usuário é admin → atualiza
-  // ├── usuário não é dono/admin → ForbiddenException
-  // └── usuário não existe → NotFoundException
-  //
-  // deleteUser() - 4 cenários
-  // ├── usuário é dono → deleta
-  // ├── usuário é admin → deleta
-  // ├── usuário não é dono/admin → ForbiddenException
-  // └── usuário não existe → NotFoundException
 
   //Testes
   it('should be defined', () => {
@@ -163,6 +151,7 @@ describe('UsersService', () => {
     mockUserModel.create.mockResolvedValue({
       ...createUserDto,
       password: hashedPassword,
+      emailVerificationToken: expect.any(String), //O token é gerado dinamicamente com randomUUID(), então validamos que esperamos qualquer coisa e que ele é uma string.
     });
 
     //Resultado obtido - usa a função real
@@ -175,12 +164,14 @@ describe('UsersService', () => {
     expect(mockUserModel.create).toHaveBeenCalledWith({
       ...createUserDto,
       password: hashedPassword,
+      emailVerificationToken: expect.any(String),
     });
 
     //Resultado esperado e obtido são iguais?
     expect(result).toEqual({
       ...createUserDto,
       password: hashedPassword,
+      emailVerificationToken: expect.any(String),
     });
   });
 
@@ -214,6 +205,7 @@ describe('UsersService', () => {
     expect(mockUserModel.create).toHaveBeenCalledWith({
       ...createUserDto,
       password: hashedPassword,
+      emailVerificationToken: expect.any(String),
     });
 
     //é esperado que seja chamado so uma vez a função create
@@ -246,6 +238,7 @@ describe('UsersService', () => {
     expect(mockUserModel.create).toHaveBeenCalledWith({
       ...createUserDto,
       password: hashedPassword,
+      emailVerificationToken: expect.any(String),
     });
 
     //é esperado que seja chamado so uma vez a função create

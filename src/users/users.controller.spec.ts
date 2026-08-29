@@ -1,3 +1,8 @@
+//Mock do QueueService para evitar carregar o BullMQ real durante os testes unitários.
+//O UsersService só precisa simular o comportamento do QueueService, não testar o BullMQ aqui.
+jest.mock('../queue/queue.service', () => ({
+  QueueService: jest.fn(),
+}));
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 
