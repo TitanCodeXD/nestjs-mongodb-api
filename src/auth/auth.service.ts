@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -50,5 +54,23 @@ export class AuthService {
       access_token: accessToken,
       id: user._id,
     };
+  }
+
+  //Verify-Email
+  async verifyEmail(token: string) {
+    const user = await this.userModel.findOne({
+      emailVerificationToken: token,
+    });
+
+    if (!user) {
+      throw new NotFoundException('Invalid verification token');
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+
+    await user.save();
+
+    return user;
   }
 }

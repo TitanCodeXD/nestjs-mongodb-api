@@ -84,24 +84,6 @@ export class UsersService {
     }
   }
 
-  //Verify-Email
-  async verifyEmail(token: string) {
-    const user = await this.userModel.findOne({
-      emailVerificationToken: token,
-    });
-
-    if (!user) {
-      throw new NotFoundException('Invalid verification token');
-    }
-
-    user.emailVerified = true;
-    user.emailVerificationToken = undefined;
-
-    await user.save();
-
-    return user;
-  }
-
   //UPDATE USER FUNCTION
   async updateUser(id: string, updateUserDto: UpdateUserDto, user: User) {
     //Verificação inicial se o que voce quer dar update te pertence ou não
