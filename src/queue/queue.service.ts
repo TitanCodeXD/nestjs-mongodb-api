@@ -11,10 +11,11 @@ export class QueueService {
   ) {}
 
   //Jobs de verify-email
-  async addTestJob() {
-    return this.emailQueue.add('verify-email-test', {
-      email: 'wesleysantos32892653@gmail.com',
-      userId: '123',
+  async addVerificationEmailJob(email: string, userId: string, token: string) {
+    return this.emailQueue.add('verify-email', {
+      email,
+      userId,
+      token,
     });
   }
 }

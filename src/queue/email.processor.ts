@@ -11,11 +11,11 @@ export class EmailProcessor extends WorkerHost {
   async process(job: Job) {
     console.log('Job recebido:', job.data);
 
-    await this.emailService.sendTestEmail(job.data.email);
+    await this.emailService.sendVerificationEmail(
+      job.data.email,
+      job.data.token,
+    );
 
     console.log('Email enviado com sucesso!');
-  }
-  catch(error) {
-    console.error('Erro ao enviar email:', error);
   }
 }

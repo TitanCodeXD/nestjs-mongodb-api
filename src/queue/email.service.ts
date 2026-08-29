@@ -17,12 +17,12 @@ export class EmailService {
     });
   }
 
-  async sendTestEmail(to: string) {
+  async sendVerificationEmail(to: string, token: string) {
     await this.transporter.sendMail({
       from: this.configService.get<string>('EMAIL_USER'),
       to,
       subject: 'NestJS API - Test Email',
-      text: 'This is a test email sent using Nodemailer!',
+      text: `Seu token de verificação é: ${token}`,
     });
   }
 }

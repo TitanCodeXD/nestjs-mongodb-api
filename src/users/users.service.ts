@@ -11,6 +11,9 @@ import { User } from './schemas/user.schema';
 import { Post } from '../posts/schemas/post.schema';
 import { Comment } from '../comments/schemas/comment.schema';
 
+//Uuid
+import { randomUUID } from 'crypto';
+
 //DTO
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -57,12 +60,19 @@ export class UsersService {
     try {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
+      const emailVerificationToken = randomUUID();
+
       const createdUser = await this.userModel.create({
         ...createUserDto,
         password: hashedPassword,
+        emailVerificationToken: emailVerificationToken,
       });
 
-      await this.queueService.addTestJob(); //#TODO
+      await this.queueService.addVerificationEmailJob(
+        createdUser.email,
+        createdUser._id,
+        createdUser.emailVerificationToken,
+      );
 
       return createdUser;
     } catch (error: any) {
