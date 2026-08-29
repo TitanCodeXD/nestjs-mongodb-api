@@ -34,5 +34,6 @@ import { QueueModule } from 'src/queue/queue.module';
 
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}

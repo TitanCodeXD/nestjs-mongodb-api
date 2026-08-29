@@ -4,6 +4,9 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User, UserSchema } from 'src/users/schemas/user.schema';
 import { APP_GUARD } from '@nestjs/core';
+//User
+import { UsersModule } from 'src/users/users.module';
+import { UsersService } from 'src/users/users.service';
 
 //JWT
 import { JwtModule } from '@nestjs/jwt';
@@ -24,6 +27,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
         expiresIn: '1h',
       },
     }),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [

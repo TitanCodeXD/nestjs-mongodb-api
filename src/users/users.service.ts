@@ -71,7 +71,7 @@ export class UsersService {
       await this.queueService.addVerificationEmailJob(
         createdUser.email,
         createdUser._id,
-        createdUser.emailVerificationToken,
+        createdUser.emailVerificationToken!,
       );
 
       return createdUser;
@@ -82,6 +82,24 @@ export class UsersService {
 
       throw error;
     }
+  }
+
+  //Verify-Email
+  async verifyEmail(token: string) {
+    const user = await this.userModel.findOne({
+      emailVerificationToken: token,
+    });
+
+    if (!user) {
+      throw new NotFoundException('Invalid verification token');
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+
+    await user.save();
+
+    return user;
   }
 
   //UPDATE USER FUNCTION
