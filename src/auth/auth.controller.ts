@@ -9,6 +9,7 @@ import {
   ApiBearerAuth,
   ApiResponse,
   ApiParam,
+  ApiQuery,
   ApiBody,
 } from '@nestjs/swagger';
 
@@ -37,6 +38,21 @@ export class AuthController {
   }
 
   @Public()
+  @ApiOperation({ summary: 'Verify User Email' })
+  @ApiQuery({
+    name: 'token',
+    required: true,
+    description: 'The UUID token sended by email to user',
+    example: '4ba8fc0e-544e-4b8a-84ec-57fc536e0b0e',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Email Verified successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found - invalid verification token',
+  })
   @Get('verify-email')
   async verifyEmail(@Query('token') token: string) {
     return this.authService.verifyEmail(token);
