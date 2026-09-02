@@ -6,6 +6,7 @@ import { QueueService } from './queue.service';
 import { EmailService } from './email.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../users/schemas/user.schema';
+import { QueueBoardService } from './queue-board.service';
 
 @Module({
   imports: [
@@ -31,8 +32,8 @@ import { User, UserSchema } from '../users/schemas/user.schema';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
 
-  providers: [EmailProcessor, QueueService, EmailService],
+  providers: [EmailProcessor, QueueService, EmailService, QueueBoardService],
 
-  exports: [QueueService],
+  exports: [QueueService, QueueBoardService],
 })
 export class QueueModule {}
