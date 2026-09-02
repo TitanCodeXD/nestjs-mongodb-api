@@ -7,6 +7,7 @@ import { Queue } from 'bullmq';
 export class QueueService {
   constructor(
     @InjectQueue('verify-email')
+    //Producer (vulgo fila de jobs)
     private readonly emailQueue: Queue,
   ) {}
 
@@ -17,5 +18,23 @@ export class QueueService {
       userId,
       token,
     });
+  }
+
+  async addResendVerificationEmailJob(
+    email: string,
+    userId: string,
+    token: string,
+  ) {
+    return this.emailQueue.add(
+      'resend-verify-email',
+      {
+        email,
+        userId,
+        token,
+      },
+      {
+        delay: 2 * 60 * 1000, // Inicialmente 2 minutos de delay para fins de teste
+      },
+    );
   }
 }

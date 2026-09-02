@@ -4,6 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailProcessor } from './email.processor';
 import { QueueService } from './queue.service';
 import { EmailService } from './email.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from '../users/schemas/user.schema';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { EmailService } from './email.service';
     BullModule.registerQueue({
       name: 'verify-email',
     }),
+
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
 
   providers: [EmailProcessor, QueueService, EmailService],
