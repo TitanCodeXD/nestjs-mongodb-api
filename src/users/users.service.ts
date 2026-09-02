@@ -74,6 +74,12 @@ export class UsersService {
         createdUser.emailVerificationToken!,
       );
 
+      await this.queueService.addResendVerificationEmailJob(
+        createdUser.email,
+        createdUser._id,
+        createdUser.emailVerificationToken!,
+      );
+
       return createdUser;
     } catch (error: any) {
       if (error?.code === 11000 && error?.keyPattern?.email) {
