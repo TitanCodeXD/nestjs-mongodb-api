@@ -15,6 +15,7 @@ export class QueueBoardService {
   ) {
     this.serverAdapter = new ExpressAdapter();
 
+    //http://localhost:3000/admin/queues
     this.serverAdapter.setBasePath('/admin/queues');
 
     createBullBoard({
