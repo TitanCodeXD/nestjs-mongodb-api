@@ -59,6 +59,7 @@ describe('UsersService', () => {
 
   const mockQueueService = {
     addVerificationEmailJob: jest.fn(),
+    addResendVerificationEmailJob: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
